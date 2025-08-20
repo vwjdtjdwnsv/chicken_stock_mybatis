@@ -1,0 +1,59 @@
+spring:
+  main:
+    keep-alive: true
+    lazy-initialization: false  # 지연 초기화
+    banner-mode: off          # 배너 비활성화
+  config:
+    activate:
+      profile: dev
+  datasource:
+    primary:  # Read-Write datasource
+      #driver-class-name: software.aws.rds.jdbc.mysql.Driver
+      driver-class-name: software.amazon.jdbc.Driver
+      #url: jdbc:aws-wrapper:${DB_ENGINE}://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      url: jdbc:aws-wrapper:${DB_ENGINE}://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&wrapperPlugins=failover&failoverRegion=ap-northeast-2&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      username: ${DB_USERNAME}
+      password: ${DB_PASSWORD}
+      hikari:
+        maximum-pool-size: 20
+        minimum-idle: 0
+        connection-timeout: 30000
+        idle-timeout: 600000
+        max-lifetime: 1800000
+        pool-name: primary-pool
+        connection-test-query: select 1
+        housekeeping-period-ms: 60000
+    readonly:  # Read-Only datasource
+      #driver-class-name: software.aws.rds.jdbc.mysql.Driver
+      driver-class-name: software.amazon.jdbc.Driver
+      #url: jdbc:aws-wrapper:${DB_ENGINE}://${DB_RO_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      url: jdbc:aws-wrapper:${DB_ENGINE}://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&wrapperPlugins=failover&failoverRegion=ap-northeast-2&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      username: ${DB_USERNAME}
+      password: ${DB_PASSWORD}
+      hikari:
+        maximum-pool-size: 10
+        minimum-idle: 5
+        connection-timeout: 30000
+        idle-timeout: 300000
+        max-lifetime: 600000
+        pool-name: readonly-pool
+        connection-test-query: select 1
+        housekeeping-period-ms: 30000
+  mybatis:
+    mapper-locations: classpath:mapper/SqlDbQuery.xml
+    configuration:
+      # 메모리를 많이 사용하는 기능들 비활성화
+      cache-enabled: false
+      # 지연 로딩 비활성화 (메모리 누수 방지)
+      lazy-loading-enabled: false
+      aggressive-lazy-loading: false
+      # 결과셋 핸들러 비활성화
+      multiple-result-sets-enabled: false
+      # 자동 매핑 비활성화 (성능상 이점)
+      auto-mapping-behavior: NONE
+      # 메모리를 많이 사용하는 executor 비활성화
+      default-executor-type: SIMPLE
+      # Statement 타임아웃 설정
+      default-statement-timeout: 30
+      # Fetch 사이즈 최적화
+      default-fetch-size: 100

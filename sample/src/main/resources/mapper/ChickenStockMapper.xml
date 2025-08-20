@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="chickenStock">
+
+    <!-- Chicken Stock 테이블 생성 SQL -->
+    <update id="createChickenStockTable">
+        CREATE TABLE IF NOT EXISTS CHICKEN_STOCK (
+            ID BIGINT AUTO_INCREMENT PRIMARY KEY,
+            STOCK_CODE VARCHAR(50) NOT NULL UNIQUE,
+            STOCK_NAME VARCHAR(100) NOT NULL,
+            QUANTITY INT NOT NULL DEFAULT 0,
+            PRICE DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+            STATUS VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+            CREATED_AT TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            UPDATED_AT TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            INDEX idx_stock_code (STOCK_CODE),
+            INDEX idx_status (STATUS)
+        )
+    </update>
+
+    <!-- Chicken Stock 등록 -->
+    <insert id="insertChickenStock" parameterType="map">
+        INSERT INTO CHICKEN_STOCK (
+            STOCK_CODE,
+            STOCK_NAME,
+            QUANTITY,
+            PRICE,
+            STATUS,
+            CREATED_AT,
+            UPDATED_AT
+        ) VALUES (
+            #{stockCode},
+            #{stockName},
+            #{quantity},
+            #{price},
+            #{status},
+            #{createdAt},
+            #{updatedAt}
+        )
+    </insert>
+
+    <!-- Chicken Stock 조회 -->
+    <select id="selectChickenStock" parameterType="map" resultType="map">
+        SELECT 
+            ID,
+            STOCK_CODE,
+            STOCK_NAME,
+            QUANTITY,
+            PRICE,
+            STATUS,
+            CREATED_AT,
+            UPDATED_AT
+        FROM CHICKEN_STOCK
+        WHERE STOCK_CODE = #{stockCode}
+    </select>
+
+    <!-- Chicken Stock 목록 조회 -->
+    <select id="selectAllChickenStocks" resultType="map">
+        SELECT 
+            ID,
+            STOCK_CODE,
+            STOCK_NAME,
+            QUANTITY,
+            PRICE,
+            STATUS,
+            CREATED_AT,
+            UPDATED_AT
+        FROM CHICKEN_STOCK
+        ORDER BY CREATED_AT DESC
+    </select>
+
+    <!-- Chicken Stock 수정 -->
+    <update id="updateChickenStock" parameterType="map">
+        UPDATE CHICKEN_STOCK
+        SET 
+            STOCK_NAME = #{stockName},
+            QUANTITY = #{quantity},
+            PRICE = #{price},
+            STATUS = #{status},
+            UPDATED_AT = #{updatedAt}
+        WHERE STOCK_CODE = #{stockCode}
+    </update>
+
+    <!-- Chicken Stock 삭제 -->
+    <delete id="deleteChickenStock" parameterType="map">
+        DELETE FROM CHICKEN_STOCK
+        WHERE STOCK_CODE = #{stockCode}
+    </delete>
+
+    <!-- Chicken Stock 수량 업데이트 -->
+    <update id="updateChickenStockQuantity" parameterType="map">
+        UPDATE CHICKEN_STOCK
+        SET 
+            QUANTITY = #{quantity},
+            UPDATED_AT = #{updatedAt}
+        WHERE STOCK_CODE = #{stockCode}
+    </update>
+
+    <!-- Chicken Stock 가격 업데이트 -->
+    <update id="updateChickenStockPrice" parameterType="map">
+        UPDATE CHICKEN_STOCK
+        SET 
+            PRICE = #{price},
+            UPDATED_AT = #{updatedAt}
+        WHERE STOCK_CODE = #{stockCode}
+    </update>
+
+    <!-- 활성 상태 Chicken Stock 조회 -->
+    <select id="selectActiveChickenStocks" resultType="map">
+        SELECT 
+            ID,
+            STOCK_CODE,
+            STOCK_NAME,
+            QUANTITY,
+            PRICE,
+            STATUS,
+            CREATED_AT,
+            UPDATED_AT
+        FROM CHICKEN_STOCK
+        WHERE STATUS = 'ACTIVE'
+        ORDER BY CREATED_AT DESC
+    </select>
+
+    <!-- 재고 부족 Chicken Stock 조회 -->
+    <select id="selectLowStockChickenStocks" parameterType="map" resultType="map">
+        SELECT 
+            ID,
+            STOCK_CODE,
+            STOCK_NAME,
+            QUANTITY,
+            PRICE,
+            STATUS,
+            CREATED_AT,
+            UPDATED_AT
+        FROM CHICKEN_STOCK
+        WHERE QUANTITY <= #{minQuantity}
+        AND STATUS = 'ACTIVE'
+        ORDER BY QUANTITY ASC
+    </select>
+
+</mapper>
